@@ -97,3 +97,64 @@ class ApplicationIsolationTests(APITestCase):
 
         self.assertEqual(created_application.user, self.bob)
         self.assertNotEqual(created_application.user, self.alice)
+
+
+    def test_applications_are_paginated(self):
+        self.client.force_authenticate(user=self.alice)
+
+        for i in range(25):
+            Application.objects.create(
+                user=self.alice,
+                job=self.job,
+                status=Application.Status.SAVED,
+            )
+
+        response = self.client.get(self.list_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("count", response.data)
+        self.assertIn("results", response.data)
+        self.assertEqual(len(response.data["results"]), 20)
+
+
+    def test_user_can_filter_applications_by_status(self):
+        self.client.force_authenticate(user=self.alice)
+
+        Application.objects.create(
+            user=self.alice,
+            job=self.job,
+            status=Application.Status.SAVED,
+        )
+
+        Application.objects.create(
+            user=self.alice,
+            job=self.job,
+            status=Application.Status.INTERVIEW,
+        )
+
+        Application.objects.create(
+            user=self.alice,
+            job=self.job,
+            status=Application.Status.REJECTED,
+        )
+
+        response = self.client.get(
+            self.list_url,
+            {"status": Application.Status.INTERVIEW},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["status"],
+            Application.Status.INTERVIEW,
+        )
+
+
+    def test_unauthenticated_user_cannot_access_applications(self):
+        response = self.client.get(self.list_url)
+
+        self.assertEqual(response.status_code, 401)

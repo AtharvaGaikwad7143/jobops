@@ -6,6 +6,16 @@ from jobs.models import Job
 
 class Application(models.Model):
 
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=["user", "status"],
+            ),
+            models.Index(
+                fields=["user", "-created_at"],
+            ),
+        ]
+
     class Status(models.TextChoices):
         SAVED = "SAVED", "Saved"
         APPLIED = "APPLIED", "Applied"

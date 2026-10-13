@@ -1,0 +1,30 @@
+{
+    "manifest_version": 3,
+    "name": "JobOps",
+    "version": "0.1.0",
+    "description": "AI-powered job application intelligence.",
+    "permissions": [
+        "storage",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "http://127.0.0.1:8000/*"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.linkedin.com/*",
+                "*://*.naukri.com/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ]
+}

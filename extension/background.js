@@ -1,0 +1,1 @@
+console.log("JobOps background service worker started");

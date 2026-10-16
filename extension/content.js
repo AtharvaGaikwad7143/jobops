@@ -12,6 +12,7 @@ function detectSite() {
     return "unknown";
 }
 
+
 function detectJobPage() {
     const site = detectSite();
     const url = window.location.href;
@@ -33,29 +34,39 @@ function detectJobPage() {
     return false;
 }
 
+
 function extractBasicJobData() {
     return {
         title: document.title,
-        url: window.location.href,
-        text: document.body.innerText,
+        location: "",
+        description: document.body.innerText,
+        source: detectSite(),
+        source_url: window.location.href,
+        company: 3
     };
 }
 
+
 console.log("JobOps loaded");
+console.log("Site:", detectSite());
+
 
 if (detectJobPage()) {
     console.log("Job detected!");
 
     const job = extractBasicJobData();
 
-    console.log(job);
+    console.log("Detected job:", job);
 } else {
     console.log("Not a supported job page");
 }
 
+
 chrome.runtime.onMessage.addListener(
     (message, sender, sendResponse) => {
+
         if (message.type === "GET_JOB") {
+
             if (!detectJobPage()) {
                 sendResponse({
                     success: false,
